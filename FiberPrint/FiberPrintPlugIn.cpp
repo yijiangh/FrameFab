@@ -93,7 +93,8 @@ void FiberPrintPlugIn::FrameFabPrint()
 		ptr_parm_,
 		ptr_path_
 		);
-	//ptr_procanalyzer_ = new ProcAnalyzer(ptr_seqanalyzer_, ptr_path_);
+
+	ptr_procanalyzer_ = new ProcAnalyzer(ptr_seqanalyzer_, ptr_path_);
 	
 	ptr_graphcut_->MakeLayers();
 	cout << "Graph Cut completed." << endl;
@@ -112,6 +113,9 @@ void FiberPrintPlugIn::FrameFabPrint()
 	ptr_graphcut_->PrintOutTimer();
 	ptr_seqanalyzer_->PrintOutTimer();
 	ptr_stiffness_->PrintOutTimer();
+
+	ptr_procanalyzer_->ProcPrint();
+	printf("proc analyzer output done.\n");
 }
 
 
@@ -197,7 +201,7 @@ void FiberPrintPlugIn::OneLayerPrint()
 	fiber_print_.Stop();
 	fiber_print_.Print("OneLayer:");
 
-	//ptr_procanalyzer_->ProcPrint();
+	ptr_procanalyzer_->ProcPrint();
 }
 
 void FiberPrintPlugIn::GetFrameFabCut()

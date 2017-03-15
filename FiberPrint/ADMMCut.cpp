@@ -957,7 +957,7 @@ bool ADMMCut::CheckLabel()
 		fprintf(stderr, "Lower set edge(whole): %d(%d)\n", l, Nd_w_);
 	}
 
-	if (l < 20 || l < ptr_frame_->SizeOfPillar())
+	if (l < 5 || l < ptr_frame_->SizeOfPillar())
 	{
 		return true;
 	}

@@ -42,9 +42,9 @@ typedef unsigned long long lld;
 using namespace Geometry;
 using namespace std;
 
-//#define	STRICT_COLLISION
+// #define	STRICT_COLLISION
 
-// ¦È=(0,180), ¦Õ=(0,360)
+// theta=(0,180), phi=(0,360)
 // target means printing edge, order menas existing edge
 class QuadricCollision
 {
@@ -62,8 +62,8 @@ public:
 
 private:
 	void	DetectEdge(WF_edge *order_e, vector<lld> &colli_map);
-	bool	DetectEdges(vector<WF_edge*> exist_edge, double ¦È, double ¦Õ);
-	bool	DetectBulk(WF_edge *order_e, double ¦È, double ¦Õ);
+	bool	DetectEdges(vector<WF_edge*> exist_edge, double theta, double phi);
+	bool	DetectBulk(WF_edge *order_e, double theta, double phi);
 	bool	DetectAngle(GeoV3 connect, GeoV3 end, GeoV3 target_end, GeoV3 normal);
 
 	bool	Case(GeoV3 target_start, GeoV3 target_end,
@@ -87,9 +87,9 @@ private:
 	gte::Segment<3, float>		Seg(GeoV3 target_start, GeoV3 target_end);
 	gte::Triangle<3, float>		Tri(GeoV3 a, GeoV3 b, GeoV3 c);
 
-	GeoV3 Orientation(double ¦È, double ¦Õ)
+	GeoV3 Orientation(double theta, double phi)
 	{ 
-		return GeoV3(sin(¦È)*cos(¦Õ), sin(¦È)*sin(¦Õ), cos(¦È)); 
+		return GeoV3(sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta)); 
 	}
 
 public:
