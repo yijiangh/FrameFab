@@ -222,6 +222,7 @@ void ProcAnalyzer::Write()
 			}
 			std::fprintf(vector, "%lf ,%lf ,%lf", temp.normal_[j].getX(), temp.normal_[j].getY(), temp.normal_[j].getZ());
 			std::fprintf(vector, "\n");
+			break;
 		}
 		std::fclose(vector);
 	}
