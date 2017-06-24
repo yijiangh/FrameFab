@@ -107,6 +107,8 @@ void FiberPrintPlugIn::FrameFabPrint()
 		terminal_output_,
 		file_output_
 		);
+
+	std::cout << ptr_path_ << std::endl;
 	ptr_procanalyzer_ = new ProcAnalyzer(ptr_seqanalyzer_, ptr_path_);
 //	ptr_procanalyzer_ = new ProcAnalyzer();
 

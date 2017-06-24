@@ -3,10 +3,14 @@
 #include "ProcAnalyzer.h"
 
 #include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 
-const static double SCALE = 0.001;
+//#include "rapidjson/writer.h"
+#include <rapidjson/prettywriter.h>
+
+//#include "rapidjson/stringbuffer.h"
+#include "rapidjson/filewritestream.h"
+
+const static double FF_TRUNC_SCALE = 0.001;
 
 ProcAnalyzer::ProcAnalyzer()
 {
@@ -19,8 +23,10 @@ ProcAnalyzer::~ProcAnalyzer()
 ProcAnalyzer::ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path)
 {
   ptr_seqanalyzer_ = seqanalyzer;
-  path_ = path;
+  path_ = std::string(path);
   debug_ = false;
+
+  std::cout << "proc ana constructor" << path_ << std::endl;
 
   MaxEdgeAngle_ = F_PI / 18*6;
 }
@@ -239,7 +245,8 @@ void ProcAnalyzer::WriteJson()
 {
   using namespace rapidjson;
 
-  string path = path_;
+  std::string path = path_;
+  std::cout << path << std::endl;
 //  string fan_path = path + "/FanState.txt";
 //  string istart_path = path + "/IStart.txt";
 //  string iend_path = path + "/IEnd.txt";
@@ -263,15 +270,15 @@ void ProcAnalyzer::WriteJson()
     point p_st = temp.start_;
 
     rapidjson::Value st_pt(rapidjson::kArrayType);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.x(), SCALE)), allocator);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.y(), SCALE)), allocator);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.z(), SCALE)), allocator);
+    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.x(), FF_TRUNC_SCALE)), allocator);
+    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.y(), FF_TRUNC_SCALE)), allocator);
+    st_pt.PushBack(Value().SetDouble(truncDigits(p_st.z(), FF_TRUNC_SCALE)), allocator);
 
     point p_end = temp.end_;
     rapidjson::Value end_pt(rapidjson::kArrayType);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_end.x(), SCALE)), allocator);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_end.y(), SCALE)), allocator);
-    st_pt.PushBack(Value().SetDouble(truncDigits(p_end.z(), SCALE)), allocator);
+    end_pt.PushBack(Value().SetDouble(truncDigits(p_end.x(), FF_TRUNC_SCALE)), allocator);
+    end_pt.PushBack(Value().SetDouble(truncDigits(p_end.y(), FF_TRUNC_SCALE)), allocator);
+    end_pt.PushBack(Value().SetDouble(truncDigits(p_end.z(), FF_TRUNC_SCALE)), allocator);
 
     element_object_container.AddMember("start_pt", st_pt, allocator);
     element_object_container.AddMember("end_pt", end_pt, allocator);
@@ -311,9 +318,9 @@ void ProcAnalyzer::WriteJson()
         continue;
       }
       rapidjson::Value feasible_orient(rapidjson::kArrayType);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getX(), SCALE)), allocator);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getY(), SCALE)), allocator);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getZ(), SCALE)), allocator);
+      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getX(), FF_TRUNC_SCALE)), allocator);
+      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getY(), FF_TRUNC_SCALE)), allocator);
+      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getZ(), FF_TRUNC_SCALE)), allocator);
 
       std::string vec_id = "f_orient" + std::to_string(j);
       Value vec_id_key(vec_id.c_str(), allocator);
@@ -328,11 +335,27 @@ void ProcAnalyzer::WriteJson()
     document.AddMember(id_key, element_object_container, allocator);
   }
 
-  StringBuffer strbuf;
-  Writer<StringBuffer> writer(strbuf);
-  document.Accept(writer);
+  // output file to path
+  std::string json_path = path + "/" + "framefab_path_result.json";
+  std::cout << json_path << std::endl;
+  FILE *js_file = fopen(json_path.c_str(), "w+");
+  if(NULL == js_file)
+  {
+    std::cout << "ERROR: invalid output file path!!!" << endl;
+    getchar();
+  }
 
-  std::cout << strbuf.GetString() << std::endl;
+  char writeBuffer[65536];
+  FileWriteStream os(js_file, writeBuffer, sizeof(writeBuffer));
+
+//  StringBuffer strbuf;
+//  std::cout << strbuf.GetString() << std::endl;
+
+  PrettyWriter<FileWriteStream> p_writer(os);
+  document.Accept(p_writer);
+
+  std::fclose(js_file);
+  std::cout << "path file saved successfully!" << std::endl;
 }
 
 bool  ProcAnalyzer::IfCoOrientation(GeoV3 a, vector<GeoV3> &b)
