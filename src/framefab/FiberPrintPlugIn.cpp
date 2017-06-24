@@ -1,6 +1,5 @@
 #include "FiberPrintPlugIn.h"
 
-
 FiberPrintPlugIn::FiberPrintPlugIn()
 {
 	ptr_frame_ = NULL;
@@ -85,7 +84,7 @@ void FiberPrintPlugIn::Init()
 
 void FiberPrintPlugIn::FrameFabPrint()
 {
-	fiber_print_.Start();
+//	fiber_print_.Start();
 
 	Init();
 
@@ -108,25 +107,28 @@ void FiberPrintPlugIn::FrameFabPrint()
 		terminal_output_,
 		file_output_
 		);
-	//ptr_procanalyzer_ = new ProcAnalyzer(ptr_seqanalyzer_, ptr_path_);
-	
+	ptr_procanalyzer_ = new ProcAnalyzer(ptr_seqanalyzer_, ptr_path_);
+//	ptr_procanalyzer_ = new ProcAnalyzer();
+
 	ptr_graphcut_->MakeLayers();
 	cout << "Graph Cut completed." << endl;
-	
+
 	if (!ptr_seqanalyzer_->SeqPrint())
 	{
 		cout << "Model not printable!" << endl;
 		getchar();
 	}
 
-	printf("FrameFab print done.\n");
+	ptr_procanalyzer_->ProcPrint();
 
-	fiber_print_.Stop();
-	printf("***Total timer result:\n");
-	fiber_print_.Print("FrameFab:");
-	ptr_graphcut_->PrintOutTimer();
-	ptr_seqanalyzer_->PrintOutTimer();
-	ptr_stiffness_->PrintOutTimer();
+//	printf("FrameFab print done.\n");
+//
+//	fiber_print_.Stop();
+//	printf("***Total timer result:\n");
+//	fiber_print_.Print("FrameFab:");
+//	ptr_graphcut_->PrintOutTimer();
+//	ptr_seqanalyzer_->PrintOutTimer();
+//	ptr_stiffness_->PrintOutTimer();
 }
 
 

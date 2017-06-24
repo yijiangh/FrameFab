@@ -40,11 +40,13 @@ find_package(LAPACK REQUIRED)
 find_package(GL REQUIRED)
 find_package(GLUT REQUIRED)
 
+find_package(RapidJSON REQUIRED)
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(GTENGINE_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext/GTEngine/Include)
+set(GTENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext/GTEngine/Include)
 
 add_subdirectory(ext)
 add_subdirectory(src)

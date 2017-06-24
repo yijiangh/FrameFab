@@ -51,12 +51,18 @@ public:
 private:
 	void		ReadLayerQueue();
 	void		Write();
-	bool		IfPointInVector(point p);
+  	void 		WriteJson();
 
+	bool		IfPointInVector(point p);
 	bool		IfCoOrientation(GeoV3 a, vector<GeoV3> &b);
 	void		CheckProcess(Process &a);
 	void		Fitler(Process &a);
 	void		ColorMap(double cost, double &r, double &g, double &b);
+
+    inline double truncDigits(double v, double scale) { return ((int)(v/scale)*scale); }
+
+ public:
+  	void		debug();
 
 private:
 	SeqAnalyzer				*ptr_seqanalyzer_;
