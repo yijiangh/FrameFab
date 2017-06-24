@@ -226,19 +226,19 @@ public:
 
 	inline vector<WF_vert*>		*GetVertList()			{ return pvert_list_; }
 	inline vector<WF_edge*>		*GetEdgeList()			{ return pedge_list_; }
-	inline WF_vert				*GetVert(int u)			{ return (u >= SizeOfVertList() || u < 0) ? NULL : (*pvert_list_)[u]; }
-	inline WF_edge				*GetEdge(int i)			{ return (i >= SizeOfEdgeList() || i < 0) ? NULL : (*pedge_list_)[i]; }
-	inline WF_edge				*GetNeighborEdge(int u)	{ return (u >= SizeOfVertList() || u < 0) ? NULL : (*pvert_list_)[u]->pedge_; }
+	inline WF_vert				*GetVert(int u)			{ return (u < SizeOfVertList() || u >= 0) ? (*pvert_list_)[u] : NULL; }
+	inline WF_edge				*GetEdge(int i)			{ return (i < SizeOfEdgeList() || i >= 0) ? (*pedge_list_)[i] : NULL; }
+	inline WF_edge				*GetNeighborEdge(int u)	{ return (u < SizeOfVertList() || u >= 0) ? (*pvert_list_)[u]->pedge_ : NULL; }
 
-	inline point		GetPosition(int u)			{ assert(u >= SizeOfVertList() || u < 0); return((*pvert_list_)[u]->Position()); }
-	inline int			GetDegree(int u)			{ assert(u >= SizeOfVertList() || u < 0); return((*pvert_list_)[u]->Degree()); }
+	inline point		GetPosition(int u)			{ assert(u < SizeOfVertList() || u >= 0); return((*pvert_list_)[u]->Position()); }
+	inline int			GetDegree(int u)			{ assert(u < SizeOfVertList() || u >= 0); return((*pvert_list_)[u]->Degree()); }
 
-	inline int			GetEndu(int i)				{ assert(i >= SizeOfEdgeList() || i < 0); return((*pedge_list_)[i]->ppair_->pvert_->ID()); }
-	inline int			GetEndv(int i)				{ assert(i >= SizeOfEdgeList() || i < 0); return((*pedge_list_)[i]->pvert_->ID()); }
-	inline point		GetCenterPos(int i)			{ assert(i >= SizeOfEdgeList() || i < 0); return((*pedge_list_)[i]->CenterPos()); }
+	inline int			GetEndu(int i)				{ assert(i < SizeOfEdgeList() || i >= 0); return((*pedge_list_)[i]->ppair_->pvert_->ID()); }
+	inline int			GetEndv(int i)				{ assert(i < SizeOfEdgeList() || i >= 0); return((*pedge_list_)[i]->pvert_->ID()); }
+	inline point		GetCenterPos(int i)			{ assert(i < SizeOfEdgeList() || i >= 0); return((*pedge_list_)[i]->CenterPos()); }
 
-	inline bool			isFixed(int u)				{ assert(u >= SizeOfVertList() || u < 0); return((*pvert_list_)[u]->isFixed()); }
-	inline bool			isPillar(int i)				{ assert(i >= SizeOfEdgeList() || i < 0); return((*pedge_list_)[i]->isPillar()); }
+	inline bool			isFixed(int u)				{ assert(u < SizeOfVertList() || u >= 0); return((*pvert_list_)[u]->isFixed()); }
+	inline bool			isPillar(int i)				{ assert(i < SizeOfEdgeList() || i >= 0); return((*pedge_list_)[i]->isPillar()); }
 
 	inline double		maxX()		{ return maxx_; }
 	inline double		minX()		{ return minx_; }

@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "WireFrame.h"
 
 WireFrame::WireFrame()

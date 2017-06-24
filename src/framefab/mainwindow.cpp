@@ -96,9 +96,11 @@ void MainWindow::CreateActions()
 
 	action_terminal_ = new QAction(tr("Terminal Output"), this);
 	action_terminal_->setCheckable(true);
+    action_terminal_->setChecked(true);
 
 	action_file_ = new QAction(tr("File Output"), this);
 	action_file_->setCheckable(true);
+    action_file_->setChecked(true);
 }
 
 

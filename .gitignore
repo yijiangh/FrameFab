@@ -11,3 +11,5 @@ ext/GTEngine/build/**
 build/**
 .idea/**
 cmake-build-debug/**
+
+**~
