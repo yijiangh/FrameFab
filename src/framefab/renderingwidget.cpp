@@ -1195,9 +1195,11 @@ void RenderingWidget::FrameFabAnalysis(
 		last_result_dir_ = dirname;
 
 		// compatible with paths in chinese
-		QTextCodec *code = QTextCodec::codecForName("gd18030");
-		QTextCodec::setCodecForLocale(code);
+//		QTextCodec *code = QTextCodec::codecForName("gd18030");
+//		QTextCodec::setCodecForLocale(code);
 		QByteArray bydirname = dirname.toLocal8Bit();
+
+//		std::cout << bydirname.data() << std::endl;
 
 		delete ptr_fiberprint_;
 		ptr_fiberprint_ = new FiberPrintPlugIn(

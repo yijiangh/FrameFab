@@ -38,4 +38,5 @@ add_executable(framefab ${FRAMEFAB_SRC} ${FRAMEFAB_UI_H})
 
 qt5_use_modules(framefab Widgets OpenGL)
 
-target_link_libraries(framefab ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLUT_LIBRARIES} ${QT_LIBRARIES} ${LAPACK_LIBRARIES} ${MOSEK_LIBRARIES} GTEngine)
+target_link_libraries(framefab ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLUT_LIBRARIES} ${QT_LIBRARIES}
+	${LAPACK_LIBRARIES} ${MOSEK_LIBRARIES} GTEngine)

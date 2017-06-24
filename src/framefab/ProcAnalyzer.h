@@ -22,56 +22,62 @@
 */
 
 #pragma once
-
+#include <math.h>
 #include "framefab/SeqAnalyzer.h"
 
 using namespace std;
 
 typedef  struct Process
 {
-	bool	fan_state_;
-	point	start_;
-	point	end_;
-	std::vector<GeoV3>  normal_;
+  bool	fan_state_;
+  point	start_;
+  point	end_;
+  std::vector<GeoV3>  normal_;
 };
 
 
 class ProcAnalyzer
 {
-public:
-	ProcAnalyzer();
-	ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path);
-	~ProcAnalyzer();
+ public:
+  ProcAnalyzer();
+  ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path);
+  ~ProcAnalyzer();
 
-public:
-	void		ProcPrint();
-	void     CollisionColorMap();
-	void      CollisionColorMap(int x);
+ public:
+  void  ProcPrint();
+  void  CollisionColorMap();
+  void  CollisionColorMap(int x);
 
-private:
-	void		ReadLayerQueue();
-	void		Write();
-	bool		IfPointInVector(point p);
+ private:
+  void	ReadLayerQueue();
+  void	Write();
+  void	WriteJson();
 
-	bool		IfCoOrientation(GeoV3 a, vector<GeoV3> &b);
-	void		CheckProcess(Process &a);
-	void		Fitler(Process &a);
-	void		ColorMap(double cost, double &r, double &g, double &b);
+  bool	IfPointInVector(point p);
+  bool	IfCoOrientation(GeoV3 a, vector<GeoV3> &b);
+  void	CheckProcess(Process &a);
+  void	Fitler(Process &a);
+  void	ColorMap(double cost, double &r, double &g, double &b);
 
-private:
-	SeqAnalyzer				*ptr_seqanalyzer_;
-	char							*path_;
+  inline double truncDigits(double v, double scale) { return (floor(v/scale)*scale); }
 
-	vector<int>					layer_queue_;
-	vector<point>				exist_point_;
-	vector<WF_edge*>		exist_edge_;
-	ExtruderCone				extruder_;
+ public:
+  void	debug();
 
-	vector<Process>		process_list_;
-	
-	bool					debug_;
-	int					support_;
+ private:
+  SeqAnalyzer*  ptr_seqanalyzer_;
+  std::string path_;
 
-	double				MaxEdgeAngle_;
+  vector<int>       layer_queue_;
+  vector<point>	    exist_point_;
+  vector<WF_edge*>  exist_edge_;
+  ExtruderCone      extruder_;
+
+  vector<Process> process_list_;
+
+  bool  debug_;
+  int	support_;
+
+  double  MaxEdgeAngle_;
 };
 
