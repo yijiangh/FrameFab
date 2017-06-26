@@ -247,10 +247,6 @@ void ProcAnalyzer::WriteJson()
 
   std::string path = path_;
   std::cout << path << std::endl;
-//  string fan_path = path + "/FanState.txt";
-//  string istart_path = path + "/IStart.txt";
-//  string iend_path = path + "/IEnd.txt";
-//  string isupport_path = path + "/ISupport.txt";
 
   // document is the root of a json message
   rapidjson::Document document;
@@ -260,6 +256,11 @@ void ProcAnalyzer::WriteJson()
 
   // must pass an allocator when the object may need to allocate memory
   rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+  Value model_object_container(rapidjson::kArrayType);
+  document.AddMember("element_number", process_list_.size(), allocator);
+  document.AddMember("support_number", support_, allocator);
+
 
   for (int i = 0; i < process_list_.size(); i++)
   {
@@ -309,22 +310,39 @@ void ProcAnalyzer::WriteJson()
       getchar(); // pause the console
     }
     rapidjson::Value feasible_orients(rapidjson::kArrayType);
+    feasible_orients.Clear();
 
-    for (int j = 0; j < temp.normal_.size(); j++)
+    if(i < support_)
     {
-      if (temp.normal_[j].getZ() < 0)
-      {
-        // filter out orientation point down
-        continue;
-      }
       rapidjson::Value feasible_orient(rapidjson::kArrayType);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getX(), FF_TRUNC_SCALE)), allocator);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getY(), FF_TRUNC_SCALE)), allocator);
-      feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getZ(), FF_TRUNC_SCALE)), allocator);
+      feasible_orient.PushBack(Value().SetDouble(0.0), allocator);
+      feasible_orient.PushBack(Value().SetDouble(0.0), allocator);
+      feasible_orient.PushBack(Value().SetDouble(1.0), allocator);
 
-      std::string vec_id = "f_orient" + std::to_string(j);
+      std::string vec_id = "f_orient" + std::to_string(0);
       Value vec_id_key(vec_id.c_str(), allocator);
-      feasible_orients.AddMember(vec_id_key, feasible_orient, allocator);
+//      feasible_orients.AddMember(vec_id_key, feasible_orient, allocator);
+      feasible_orients.PushBack(feasible_orient, allocator);
+    }
+    else
+    {
+      for (int j = 0; j < temp.normal_.size(); j++)
+      {
+        if (temp.normal_[j].getZ() < 0)
+        {
+          // filter out orientation point down
+          continue;
+        }
+        rapidjson::Value feasible_orient(rapidjson::kArrayType);
+        feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getX(), FF_TRUNC_SCALE)), allocator);
+        feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getY(), FF_TRUNC_SCALE)), allocator);
+        feasible_orient.PushBack(Value().SetDouble(truncDigits(temp.normal_[j].getZ(), FF_TRUNC_SCALE)), allocator);
+
+        std::string vec_id = "f_orient" + std::to_string(j);
+        Value vec_id_key(vec_id.c_str(), allocator);
+//        feasible_orients.AddMember(vec_id_key, feasible_orient, allocator);
+        feasible_orients.PushBack(feasible_orient, allocator);
+      }
     }
 
     element_object_container.AddMember(
@@ -332,8 +350,12 @@ void ProcAnalyzer::WriteJson()
 
     std::string id = "element" + std::to_string(i);
     Value id_key(id.c_str(), allocator);
-    document.AddMember(id_key, element_object_container, allocator);
+
+    model_object_container.PushBack(element_object_container, allocator);
+//    document.AddMember(id_key, element_object_container, allocator);
   }
+
+  document.AddMember("sequenced_elements", model_object_container, allocator);
 
   // output file to path
   std::string json_path = path + "/" + "framefab_path_result.json";
