@@ -261,6 +261,13 @@ void ProcAnalyzer::WriteJson()
   document.AddMember("element_number", process_list_.size(), allocator);
   document.AddMember("support_number", support_, allocator);
 
+  trimesh::vec3 base_center_pt = ptr_seqanalyzer_->ptr_frame_->GetBaseCenterPos();
+
+  rapidjson::Value bc_pt(rapidjson::kArrayType);
+  bc_pt.PushBack(Value().SetDouble(truncDigits(base_center_pt.x(), FF_TRUNC_SCALE)), allocator);
+  bc_pt.PushBack(Value().SetDouble(truncDigits(base_center_pt.y(), FF_TRUNC_SCALE)), allocator);
+  bc_pt.PushBack(Value().SetDouble(truncDigits(base_center_pt.z(), FF_TRUNC_SCALE)), allocator);
+  document.AddMember("base_center_pt", bc_pt, allocator);
 
   for (int i = 0; i < process_list_.size(); i++)
   {

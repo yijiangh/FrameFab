@@ -831,6 +831,7 @@ void WireFrame::Unify()
 
 	scaleV_ = unify_size_ / scaleMax;
 	center_pos_ = point((minx_ + maxx_) / 2.f, (miny_ + maxy_) / 2.f, (minz_ + maxz_) / 2.f);
+	base_center_pos_ = point((minx_ + maxx_) / 2.f, (miny_ + maxy_) / 2.f, minz_);
 
 	for (size_t i = 0; i < N; i++)
 	{
