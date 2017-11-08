@@ -8,31 +8,9 @@ This code implements a sequence generation algorithm for robotic spatial printin
 Yijiang Huang, Juyong Zhang, Xin Hu, Guoxian Song, Zhongyuan Liu, Lei Yu, Ligang Liu. FrameFab: Robotic Fabrication of Frame Shapes.
 ACM Trans. Graph. 35, 6, 2016.
 
-## 2. Dependencies
+## 2. Installation Instructions
 
 This code has been tested in Windows (built with VS2013) and Ubuntu 14.04-LTS.
-
-### 2.2 Qt
-Download **Qt 5.5.1** from "*https://www.qt.io/download/*".
-(OpenGL should be included in Qt.)
-
-Download **LAPACK 3.5.0** from "*http://www.netlib.org/lapack/*".
-
-### 2.4 Mosek
-Download **Mosek 7.0** from "*https://www.mosek.com/resources/downloads*".
-
-### 2.5 Eigen
-Download **Eigen 3** from "*http://eigen.tuxfamily.org/index.php?title=Main_Page*".
-
-### 3.6 Geometric Tools Engine
-Download **Geometric Tools Engine 2.4** from "*http://www.geometrictools.com/Downloads/Downloads.html*".
-
-### Useful tools for installation
-
-- git
-- Cmake (Default cmake version of 14.04 is 2.8, we need cmake 3.2)
-
-## 3. Installation Instructions
 
 ### Usual clone and Cmake procedure
 
