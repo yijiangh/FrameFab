@@ -12,6 +12,10 @@ ACM Trans. Graph. 35, 6, 2016.
 
 This code has been tested in Windows (built with VS2013) and Ubuntu 14.04-LTS.
 
+:warning: **DO NOT install framefab on Ubuntu 16.04 with ROS kinetic installed! Guarantee to break the packages!**
+
+:construction: **Fix In Progress**
+
 ### Usual clone and Cmake procedure
 
 - Clone Framefab from [github](https://github.com/yijiangh/FrameFab)
@@ -31,7 +35,7 @@ This code has been tested in Windows (built with VS2013) and Ubuntu 14.04-LTS.
 		- `$ ./qt-opensource-linux-x64-5.7.0.run`
 	- Install OpenGL and Glut librarues
 		- `$ sudo apt-get install mesa-common-dev`
-		- `$ sudo apt-get install libglu1-mesa-dev -y`
+		- `$ sudo apt-get install libglu1-mesa-dev`
 		- `$ sudo apt-get install freeglut3-dev`
 
 - update and change CXX compiler
