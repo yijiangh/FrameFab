@@ -289,7 +289,9 @@ void ADMMCut::InitWeight()
 		double tmp_range;
 		double tmp_weight;
 		double tmp_height;
-			
+		
+		double collision_weight_factor = 3;
+
 		tmp_range = ptr_dualgraph_->Weight(i);
 		tmp_height = exp(-3 * tmp_range * tmp_range);
 
@@ -300,14 +302,18 @@ void ADMMCut::InitWeight()
 		Fij = ptr_collision_->ColFreeAngle(tmp) * 1.0 / ptr_collision_->Divide();
 
 		tmp_range = max(Fij - Fji, 0.0);
-		tmp_weight = exp(-0.5 * tmp_range * tmp_range) * tmp_height;
+		tmp_weight = exp(-collision_weight_factor * tmp_range * tmp_range) * tmp_height;
+		//tmp_weight = exp(-collision_weight_factor * tmp_range * tmp_range);
+
 		if (tmp_weight > SPT_EPS)
 		{
 			weight_list.push_back(Triplet<double>(orig_u / 2, orig_v / 2, tmp_weight));
 		}
 
 		tmp_range = max(Fji - Fij, 0.0);
-		tmp_weight = exp(-0.5 * tmp_range * tmp_range) * tmp_height;		
+		tmp_weight = exp(-collision_weight_factor * tmp_range * tmp_range) * tmp_height;
+		//tmp_weight = exp(-collision_weight_factor * tmp_range * tmp_range);
+
 		if (tmp_weight > SPT_EPS)
 		{
 			weight_list.push_back(Triplet<double>(orig_v / 2, orig_u / 2, tmp_weight));
@@ -634,12 +640,13 @@ void ADMMCut::CalculateD()
 		int u = ptr_dualgraph_->v_dual_id(e->pvert_->ID());
 		int v = ptr_dualgraph_->v_dual_id(e->ppair_->pvert_->ID());
 
-		if (u != -1)
+		// TODO: need to bound u and v
+		if (u != -1 && u < Ns)
 		{
 			D_w[u] = max(D_w[u], x_[i]);
 		}
 
-		if (v != -1)
+		if (v != -1 && v < Ns)
 		{
 			D_w[v] = max(D_w[v], x_[i]);
 		}
@@ -923,7 +930,7 @@ bool ADMMCut::UpdateR(VX &x_prev)
 		update_r_.Stop();
 	}
 
-	if (max_improv < 0.8 || reweight_round_ > 20)
+	if (max_improv < 0.2 || reweight_round_ > 40)
 	{
 		/* Exit Reweighting */
 		return true;
@@ -955,9 +962,10 @@ bool ADMMCut::CheckLabel()
 	if (output_stat_)
 	{
 		fprintf(stderr, "Lower set edge(whole): %d(%d)\n", l, Nd_w_);
+		fprintf(stderr, "Upper set edge(whole): %d(%d)\n", u, Nd_w_);
 	}
 
-	if (l < 5 || l < ptr_frame_->SizeOfPillar())
+	if (l < 20 || l < ptr_frame_->SizeOfPillar())
 	{
 		return true;
 	}
@@ -972,10 +980,10 @@ bool ADMMCut::CheckLabel()
 
 bool ADMMCut::TerminationCriteria()
 {
-	if (ADMM_round_ >= 20)
-	{
-		return true;
-	}
+	//if (ADMM_round_ >= 50)
+	//{
+	//	return true;
+	//}
 
 	if (primal_res_ <= pri_tol_ && dual_res_ <= dual_tol_)
 	{
