@@ -201,7 +201,9 @@ void FiberPrintPlugIn::OneLayerPrint()
 	fiber_print_.Stop();
 	fiber_print_.Print("OneLayer:");
 
+	printf("proc analyzer starts...\n");
 	ptr_procanalyzer_->ProcPrint();
+	printf("proc analyzer output done.\n");
 }
 
 void FiberPrintPlugIn::GetFrameFabCut()

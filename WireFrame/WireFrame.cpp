@@ -754,6 +754,7 @@ void WireFrame::Unify()
 	minx_ = 1e20;
 	miny_ = 1e20;
 	minz_ = 1e20;
+	basez_ = 1e20;
 
 	fixed_vert_ = 0;
 	base_vert_ = 0;
@@ -794,6 +795,14 @@ void WireFrame::Unify()
 				minz_ = p.z();
 			}
 		}
+		else
+		{
+			//set base_z for once
+			if (p.z() < basez_)
+			{
+				basez_ = p.z();
+			}
+		}
 	}
 
 	int M = SizeOfEdgeList();
@@ -830,6 +839,7 @@ void WireFrame::Unify()
 
 	scaleV_ = unify_size_ / scaleMax;
 	center_pos_ = point((minx_ + maxx_) / 2.f, (miny_ + maxy_) / 2.f, (minz_ + maxz_) / 2.f);
+	base_center_pos_ = point((minx_ + maxx_) / 2.f, (miny_ + maxy_) / 2.f, basez_);
 
 	for (size_t i = 0; i < N; i++)
 	{

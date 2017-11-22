@@ -145,3 +145,5 @@ ModelManifest.xml
 **.swp
 
 **/GeneratedFiles/*
+
+**.vcxproj

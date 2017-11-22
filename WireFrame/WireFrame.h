@@ -221,6 +221,9 @@ public:
 	inline int			GetEndv(int i)				{ return (i >= SizeOfEdgeList() || i < 0) ? NULL : (*pedge_list_)[i]->pvert_->ID(); }
 	inline point		GetCenterPos(int i)			{ return (i >= SizeOfEdgeList() || i < 0) ? NULL : (*pedge_list_)[i]->CenterPos(); }
 
+	inline Vec3f 		GetCenterPos() const { return center_pos_; }
+	inline Vec3f 		GetBaseCenterPos() const { return base_center_pos_; }
+
 	inline bool			isFixed(int u)				{ return (u >= SizeOfVertList() || u < 0) ? NULL : (*pvert_list_)[u]->isFixed(); }
 	inline bool			isPillar(int i)				{ return (i >= SizeOfEdgeList() || i < 0) ? NULL : (*pedge_list_)[i]->isPillar(); }
 
@@ -274,8 +277,10 @@ private:
 	double				minx_;
 	double				miny_;
 	double				minz_;
+	double 				basez_;
 
 	Vec3f				center_pos_;
+	Vec3f 				base_center_pos_;
 	float				scaleV_;
 	double				unify_size_;
 	double				delta_tol_;
