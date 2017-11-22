@@ -980,10 +980,10 @@ bool ADMMCut::CheckLabel()
 
 bool ADMMCut::TerminationCriteria()
 {
-	//if (ADMM_round_ >= 50)
-	//{
-	//	return true;
-	//}
+	if (ADMM_round_ >= 100)
+	{
+		return true;
+	}
 
 	if (primal_res_ <= pri_tol_ && dual_res_ <= dual_tol_)
 	{
