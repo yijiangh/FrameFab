@@ -62,8 +62,7 @@ void QuadricCollision::DetectCollision(WF_edge *target_e, WF_edge *order_e,
 }
 
 
-void QuadricCollision::DetectCollision(WF_edge *target_e,
-	vector<WF_edge*> exist_edge, vector<GeoV3> &output)
+void QuadricCollision::DetectCollision(WF_edge *target_e, vector<WF_edge*> exist_edge, vector<GeoV3> &output)
 {
 	output.clear();
 
@@ -72,6 +71,7 @@ void QuadricCollision::DetectCollision(WF_edge *target_e,
 	//North Point
 	if (!DetectEdges(exist_edge, 0, 0))
 		output.push_back(Orientation(0, 0));
+	
 	for (int j = 0; j < 3; j++)
 	{
 		for (int i = 0; i < divide_; i++)

@@ -32,6 +32,8 @@ typedef  struct Process
 	bool	fan_state_;
 	point	start_;
 	point	end_;
+
+	// list of feasible orientations
 	std::vector<GeoV3>  normal_;
 };
 
@@ -44,37 +46,37 @@ public:
 	~ProcAnalyzer();
 
 public:
-	void		ProcPrint();
-	void     CollisionColorMap();
-	void      CollisionColorMap(int x);
+	void ProcPrint();
+	void CollisionColorMap();
+	void CollisionColorMap(int x);
 
 private:
-	void		ReadLayerQueue();
-	void		Write();
-	void 		WriteJson();
+	void ReadLayerQueue();
+	void Write();
+	void WriteJson();
 
-	bool		IfPointInVector(point p);
-	bool		IfCoOrientation(GeoV3 a, vector<GeoV3> &b);
-	void		CheckProcess(Process &a);
-	void		Fitler(Process &a);
-	void		ColorMap(double cost, double &r, double &g, double &b);
+	bool IfPointInVector(point p);
+	bool IfCoOrientation(GeoV3 a, vector<GeoV3> &b);
+	void CheckProcess(Process &a);
+	void Fitler(Process &a);
+	void ColorMap(double cost, double &r, double &g, double &b);
 
 	inline double truncDigits(double v, double scale) { return ((int)(v / scale)*scale); }
 
 private:
-	SeqAnalyzer				*ptr_seqanalyzer_;
-	char							*path_;
+	SeqAnalyzer	*ptr_seqanalyzer_;
+	char *path_;
 
-	vector<int>					layer_queue_;
-	vector<point>				exist_point_;
-	vector<WF_edge*>		exist_edge_;
-	ExtruderCone				extruder_;
+	vector<int>	layer_queue_;
+	vector<point> exist_point_;
+	vector<WF_edge*> exist_edge_;
+	ExtruderCone extruder_;
 
-	vector<Process>		process_list_;
+	vector<Process>	process_list_;
 	
-	bool					debug_;
-	int					support_;
+	bool debug_;
+	int	support_;
 
-	double				MaxEdgeAngle_;
+	double MaxEdgeAngle_;
 };
 

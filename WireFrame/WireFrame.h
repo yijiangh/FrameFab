@@ -108,11 +108,11 @@ public:
 	~WF_edge(){}
 
 public:
-	int			ID()			{ return id_; }
-	int			Layer()			{ return layer_; }
-	bool		isPillar()		{ return b_pillar_; }
-	bool		isCeiling()		{ return b_ceiling_; }
-	bool		isSubgraph()	{ return b_subg_; }
+	int			ID() const { return id_; }
+	int			Layer() const { return layer_; }
+	bool		isPillar() const { return b_pillar_; }
+	bool		isCeiling() const { return b_ceiling_; }
+	bool		isSubgraph() const { return b_subg_; }
 
 	void		SetID(int id)				{ id_ = id; }
 	void		SetLayer(int layer)			{ layer_ = layer; }

@@ -15,11 +15,9 @@ ProcAnalyzer::ProcAnalyzer()
 {
 }
 
-
 ProcAnalyzer::~ProcAnalyzer()
 {
 }
-
 
 ProcAnalyzer::ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path)
 {
@@ -27,7 +25,8 @@ ProcAnalyzer::ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path)
 	path_ = path;
 	debug_ = false;
 
-	MaxEdgeAngle_ = F_PI / 18*6;
+	// maximal allowable angle between eef orientation and printed element
+	MaxEdgeAngle_ = F_PI / 18.0 * 7.5;
 }
 
 
@@ -48,6 +47,7 @@ void ProcAnalyzer::ProcPrint()
 	}
 	else
 	{
+		// get print queue from sequence planner
 		ptr_seqanalyzer_->OutputPrintOrder(print_queue);
 	}
 
@@ -56,12 +56,13 @@ void ProcAnalyzer::ProcPrint()
 		layer_queue_.push_back(print_queue[i]->ID());
 	}
 
-
 	exist_point_.clear();
 	process_list_.clear();
+	process_list_.reserve(layer_queue_.size());
+
 	support_ = 0;
 
-	//angle
+	//extracting feasible angles
 	for (int i = 0; i < layer_queue_.size(); i++)
 	{
 		Process temp;
@@ -74,78 +75,126 @@ void ProcAnalyzer::ProcPrint()
 		}
 		else
 		{
+			// perform collision checking to obtain feasible orientations
 			ptr_collision->DetectCollision(e, exist_edge_, temp.normal_);
 		}
 		exist_edge_.push_back(e);
 		process_list_.push_back(temp);
 	}
 
-	//point
+	// extracting start and end nodes
+	point prev_end_node(0, 0, 0);
+
 	for (int i = 0; i < layer_queue_.size(); i++)
 	{
 		Process temp = process_list_[i];
-		int orig_e = layer_queue_[i];
+		const int orig_e = layer_queue_[i];
 		WF_edge *e = ptr_frame->GetEdge(orig_e);
-
-		point up, down;
-		if ((e->pvert_->Position()).z()>(e->ppair_->pvert_->Position()).z())
-		{
-			up = e->pvert_->Position();
-			down = e->ppair_->pvert_->Position();
-		}
-		else
-		{
-			up = e->ppair_->pvert_->Position();
-			down = e->pvert_->Position();
-		}
 
 		if (e->isPillar())
 		{
-			temp.start_ = down;
-			temp.end_ = up;
-			temp.fan_state_ = true;
-			if (!IfPointInVector(down))
-				exist_point_.push_back(down);
-			if (!IfPointInVector(up))
-				exist_point_.push_back(up);
-		}
-		else
-		{
-			if (IfPointInVector(down) && IfPointInVector(up))
+			if ((e->pvert_->Position()).z() > (e->ppair_->pvert_->Position()).z())
 			{
-				temp.fan_state_ = false;
-				temp.start_ = down;
-				temp.end_ = up;
-			}
-			else if (IfPointInVector(down))
-			{
-				temp.fan_state_ = true;
-				temp.start_ = down;
-				temp.end_ = up;
-				exist_point_.push_back(up);
+				temp.end_ = e->pvert_->Position();
+				temp.start_ = e->ppair_->pvert_->Position();
 			}
 			else
 			{
-				temp.fan_state_ = true;
-				temp.start_ = up;
-				temp.end_ = down;
-				exist_point_.push_back(down);
+				temp.start_ = e->pvert_->Position();
+				temp.end_ = e->ppair_->pvert_->Position();
 			}
-		} 
-		process_list_[i] = temp;
-	}
 
+			temp.fan_state_ = true;
+
+			// pillar shouldn't have been printed yet
+			if (!IfPointInVector(temp.end_))
+			{
+				exist_point_.push_back(temp.end_);
+			}
+			if (!IfPointInVector(temp.start_))
+			{
+				exist_point_.push_back(temp.start_);
+			}
+			process_list_[i] = temp;
+			continue;
+		}
+
+		// non-pillar element
+		// init
+		point start_node = e->pvert_->Position();
+		point end_node = e->ppair_->pvert_->Position();
+		const bool start_node_exist = IfPointInVector(start_node);
+		const bool end_node_exist = IfPointInVector(end_node);
+
+		// sanity check: at least one of the nodes should exist
+		assert(start_node_exist | end_node_exist);
+
+		// XOR - only one of them exist, "create type"
+		if (start_node_exist ^ end_node_exist)
+		{
+			temp.fan_state_ = true;
+			if (start_node_exist)
+			{
+				temp.start_ = start_node;
+				temp.end_ = end_node;
+				exist_point_.push_back(start_node);
+			}
+			else
+			{
+				temp.start_ = end_node;
+				temp.end_ = start_node;
+				exist_point_.push_back(end_node);
+			}
+		}
+		else
+		{
+			// AND - both of them exist, "connect type"
+			// use previous end point as start node if possible
+			// i.e. prefer continuous printing
+			if (prev_end_node == end_node || prev_end_node == start_node)
+			{
+				if (prev_end_node == end_node)
+				{
+					point tmp_swap = start_node;
+					start_node = end_node;
+					end_node = tmp_swap;
+				}
+				//else start node already agrees with prev_end_node, then keep rolling!
+			}
+			else
+			{
+				// we prefer the start node to be close
+				if (trimesh::dist(end_node, prev_end_node) < trimesh::dist(start_node, prev_end_node))
+				{
+					point tmp_swap = start_node;
+					start_node = end_node;
+					end_node = tmp_swap;
+				}
+			}
+
+			temp.fan_state_ = false;
+			temp.start_ = start_node;
+			temp.end_ = end_node;
+		}
+
+		process_list_[i] = temp;
+	} // end loop for all elements (layer_queue_)
 
 	for (int i = 0; i < process_list_.size(); i++)
 	{
 		if (process_list_[i].fan_state_)
 		{
+			// prune orientation domain based on fabrication constraint
+			// for "create type", we only allow orientations whose angle to the element
+			// is smaller than max_edge_angle
 			Fitler(process_list_[i]);
 		}
 		else
-			CheckProcess(process_list_[i]);
+		{
+			// disable pruning on "connect type" domain prunning
+			//CheckProcess(process_list_[i]);
+		}
 	}
-
 
 	//Write();
 	printf("[ProcAnalyzer] generating json output...");
@@ -181,6 +230,75 @@ bool  ProcAnalyzer::IfPointInVector(point p)
 			return true;
 	}
 	return false;
+}
+
+bool  ProcAnalyzer::IfCoOrientation(GeoV3 a, vector<GeoV3> &b)
+{
+	// orientations should stay in semi-sphere of the element
+	for (int i = 0; i < b.size(); i++)
+	{
+		if (angle(a, b[i]) < (F_PI / 2))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void ProcAnalyzer::CheckProcess(Process &a)
+{
+	GeoV3 t = a.end_ - a.start_;
+
+	t.normalize();
+	vector<GeoV3> temp_normal;
+	if (!IfCoOrientation(t, a.normal_))
+	{
+		point temp = a.end_;
+		a.end_ = a.start_;
+		a.start_ = temp;
+		for (int i = 0; i < a.normal_.size(); i++)
+		{
+			if (angle(t, a.normal_[i]) < (F_PI / 2))
+				continue;
+			else
+				temp_normal.push_back(a.normal_[i]);
+		}
+	}
+	else
+	{
+		// only get smaller than pi/2 orientation
+		for (int i = 0; i < a.normal_.size(); i++)
+		{
+			if (angle(t, a.normal_[i]) < (F_PI / 2))
+			{
+				temp_normal.push_back(a.normal_[i]);
+			}
+		}
+	}
+
+	a.normal_ = temp_normal;
+}
+
+
+void ProcAnalyzer::Fitler(Process &a)
+{
+	GeoV3 t = a.end_ - a.start_;
+	t.normalize();
+	vector<GeoV3> temp;
+	if (IfCoOrientation(t, a.normal_))
+	{
+		for (int i = 0; i < a.normal_.size(); i++)
+		{
+			if (angle(t, a.normal_[i]) < MaxEdgeAngle_)
+			{
+				temp.push_back(a.normal_[i]);
+			}
+		}
+	}
+	if (temp.size())
+	{
+		a.normal_ = temp;
+	}
 }
 
 void ProcAnalyzer::Write()
@@ -389,68 +507,6 @@ void ProcAnalyzer::WriteJson()
 	std::cout << "path file saved successfully!" << std::endl;
 }
 
-bool  ProcAnalyzer::IfCoOrientation(GeoV3 a, vector<GeoV3> &b)
-{
-	for (int i = 0; i < b.size(); i++)
-	{
-		if (angle(a, b[i]) < (F_PI / 2))
-			return true;
-	}
-	return false;
-}
-
-void ProcAnalyzer::CheckProcess(Process &a)
-{
-	GeoV3 t = a.end_ - a.start_;
-
-	t.normalize();
-	vector<GeoV3> temp_normal;
-	if (!IfCoOrientation(t, a.normal_))
-	{
-		point temp = a.end_;
-		a.end_ = a.start_; 
-		a.start_ = temp;
-		for (int i = 0; i < a.normal_.size(); i++)
-		{
-			if (angle(t, a.normal_[i]) <(F_PI / 2))
-				continue;
-		  else
-				temp_normal.push_back(a.normal_[i]);
-		}		
-	}
-	else
-	{
-		for (int i = 0; i < a.normal_.size(); i++)
-		{
-			if (angle(t, a.normal_[i]) <(F_PI / 2))				
-				temp_normal.push_back(a.normal_[i]);
-		}
-	}
-	a.normal_ = temp_normal;
-
-}
-
-
-void ProcAnalyzer::Fitler(Process &a)
-{
-	GeoV3 t = a.end_ - a.start_;
-	t.normalize();
-	vector<GeoV3> temp;
-	if (IfCoOrientation(t, a.normal_))
-	{
-		for (int i = 0; i < a.normal_.size(); i++)
-		{
-			if (angle(t, a.normal_[i]) < MaxEdgeAngle_)
-			{
-				temp.push_back(a.normal_[i]);
-			}
-		}
-	}
-	if (temp.size())
-		a.normal_ = temp;
-}
-
-
 void ProcAnalyzer::CollisionColorMap()
 {
 	WireFrame *ptr_frame = ptr_seqanalyzer_->ptr_frame_;
@@ -568,7 +624,6 @@ void ProcAnalyzer::CollisionColorMap()
 	}
 	
 }
-
 
 void ProcAnalyzer::CollisionColorMap(int x)
 {

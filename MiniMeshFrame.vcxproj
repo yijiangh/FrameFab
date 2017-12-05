@@ -251,6 +251,7 @@
     <ClInclude Include="FiberPrint\FiberPrintPlugIn.h" />
     <ClInclude Include="FiberPrint\GraphCut.h" />
     <ClInclude Include="FiberPrint\NormalCut.h" />
+    <ClInclude Include="FiberPrint\ProcAnalyzer.h" />
     <ClInclude Include="FiberPrint\SeqAnalyzer.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="GlobalFunctions\GCommon.h" />

@@ -290,7 +290,7 @@ void ADMMCut::InitWeight()
 		double tmp_weight;
 		double tmp_height;
 		
-		double collision_weight_factor = 3;
+		double collision_weight_factor = 0.5;
 
 		tmp_range = ptr_dualgraph_->Weight(i);
 		tmp_height = exp(-3 * tmp_range * tmp_range);

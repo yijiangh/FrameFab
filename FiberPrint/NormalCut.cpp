@@ -27,13 +27,14 @@ void NormalCut::MakeLayers()
 		WF_edge *e = ptr_frame_->GetEdge(i);
 		if (e->ID() < e->ppair_->ID())
 		{
-			double lower_z = min(e->pvert_->Position().z(), 
-				e->ppair_->pvert_->Position().z());
+			//double lower_z = min(e->pvert_->Position().z(), 
+			//	e->ppair_->pvert_->Position().z());
+			double lower_z = e->CenterPos().z();
 			sweep_queue_.insert(make_pair(lower_z, e));
 		}
 	}
 
-	int layer_gap = 35;
+	int layer_gap = 40;
 	int l = 0;
 	multimap<double, WF_edge*>::iterator it;
 	for (it = sweep_queue_.begin(); it != sweep_queue_.end(); l++)

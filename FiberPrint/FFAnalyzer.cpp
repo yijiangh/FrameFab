@@ -265,16 +265,16 @@ double FFAnalyzer::GenerateCost(WF_edge *ei, WF_edge *ej)
 			return -1;
 		}
 
-		///* stiffness test */
-		//if (!TestifyStiffness(ej))
-		//{
-		//	/* examination failed */
-		//	if (debug_)
-		//	{
-		//		fprintf(stderr, "Stiffness examination failed at edge #%d.\n\n", ej->ID() / 2);
-		//	}
-		//	return -1;
-		//}
+		/* stiffness test */
+		if (!TestifyStiffness(ej))
+		{
+			/* examination failed */
+			if (debug_)
+			{
+				fprintf(stderr, "Stiffness examination failed at edge #%d.\n\n", ej->ID() / 2);
+			}
+			return -1;
+		}
 
 		/* adjacency weight */
 		if (ei == NULL)

@@ -163,7 +163,7 @@ void FiberPrintPlugIn::SweepingPrint()
 		);
 
 	ptr_graphcut_->MakeLayers();
-	cout << "Graph Cut completed." << endl;
+	cout << "Sweeping Graph Cut completed." << endl;
 
 	if (!ptr_seqanalyzer_->SeqPrint())
 	{
@@ -212,26 +212,23 @@ void FiberPrintPlugIn::GetFrameFabCut()
 
 	Init();
 
-	ptr_graphcut_ = new ADMMCut(
-		ptr_dualgraph_,
-		ptr_collision_,
-		ptr_stiffness_,
-		ptr_parm_,
-		ptr_path_
-		);
+	//ptr_graphcut_ = new ADMMCut(
+	//	ptr_dualgraph_,
+	//	ptr_collision_,
+	//	ptr_stiffness_,
+	//	ptr_parm_,
+	//	ptr_path_
+	//	);
 
-	ptr_seqanalyzer_ = new FFAnalyzer(
-		ptr_dualgraph_,
-		ptr_collision_,
-		ptr_stiffness_,
-		ptr_parm_,
-		ptr_path_
-		);
+	//ptr_graphcut_->MakeLayers();
+	//cout << "Graph Cut completed." << endl;
+
+	//printf("FrameFab Cut done.\n");
+
+	ptr_graphcut_ = new NormalCut(ptr_frame_, ptr_path_);
 
 	ptr_graphcut_->MakeLayers();
-	cout << "Graph Cut completed." << endl;
-
-	printf("FrameFab Cut done.\n");
+	cout << "Sweeping Graph Cut completed." << endl;
 
 	fiber_print_.Stop();
 	printf("***Total timer result:\n");
