@@ -26,7 +26,7 @@ ProcAnalyzer::ProcAnalyzer(SeqAnalyzer *seqanalyzer, char *path)
 	debug_ = false;
 
 	// maximal allowable angle between eef orientation and printed element
-	MaxEdgeAngle_ = F_PI / 18.0 * 7.5;
+	MaxEdgeAngle_ = F_PI / 18 * 6;
 }
 
 
@@ -62,7 +62,7 @@ void ProcAnalyzer::ProcPrint()
 
 	support_ = 0;
 
-	//extracting feasible angles
+	// extracting feasible angles
 	for (int i = 0; i < layer_queue_.size(); i++)
 	{
 		Process temp;
@@ -115,68 +115,68 @@ void ProcAnalyzer::ProcPrint()
 			{
 				exist_point_.push_back(temp.start_);
 			}
-			process_list_[i] = temp;
-			continue;
-		}
-
-		// non-pillar element
-		// init
-		point start_node = e->pvert_->Position();
-		point end_node = e->ppair_->pvert_->Position();
-		const bool start_node_exist = IfPointInVector(start_node);
-		const bool end_node_exist = IfPointInVector(end_node);
-
-		// sanity check: at least one of the nodes should exist
-		assert(start_node_exist | end_node_exist);
-
-		// XOR - only one of them exist, "create type"
-		if (start_node_exist ^ end_node_exist)
-		{
-			temp.fan_state_ = true;
-			if (start_node_exist)
-			{
-				temp.start_ = start_node;
-				temp.end_ = end_node;
-				exist_point_.push_back(start_node);
-			}
-			else
-			{
-				temp.start_ = end_node;
-				temp.end_ = start_node;
-				exist_point_.push_back(end_node);
-			}
 		}
 		else
 		{
-			// AND - both of them exist, "connect type"
-			// use previous end point as start node if possible
-			// i.e. prefer continuous printing
-			if (prev_end_node == end_node || prev_end_node == start_node)
+			// non-pillar element
+			// init
+			point start_node = e->pvert_->Position();
+			point end_node = e->ppair_->pvert_->Position();
+			const bool start_node_exist = IfPointInVector(start_node);
+			const bool end_node_exist = IfPointInVector(end_node);
+
+			// sanity check: at least one of the nodes should exist
+			assert(start_node_exist || end_node_exist);
+
+			// XOR - only one of them exist, "create type"
+			if (start_node_exist != end_node_exist)
 			{
-				if (prev_end_node == end_node)
+				temp.fan_state_ = true;
+				if (start_node_exist)
 				{
-					point tmp_swap = start_node;
-					start_node = end_node;
-					end_node = tmp_swap;
+					temp.start_ = start_node;
+					temp.end_ = end_node;
 				}
-				//else start node already agrees with prev_end_node, then keep rolling!
+				else
+				{
+					temp.start_ = end_node;
+					temp.end_ = start_node;
+				}
+				exist_point_.push_back(temp.end_);
 			}
 			else
 			{
-				// we prefer the start node to be close
-				if (trimesh::dist(end_node, prev_end_node) < trimesh::dist(start_node, prev_end_node))
+				// AND - both of them exist, "connect type"
+				// use previous end point as start node if possible
+				// i.e. prefer continuous printing
+				if (prev_end_node == end_node || prev_end_node == start_node)
 				{
-					point tmp_swap = start_node;
-					start_node = end_node;
-					end_node = tmp_swap;
+					if (prev_end_node == end_node)
+					{
+						point tmp_swap = start_node;
+						start_node = end_node;
+						end_node = tmp_swap;
+					}
+					//else start node already agrees with prev_end_node, then keep rolling!
 				}
-			}
+				else
+				{
+					// we prefer the start node to be close
+					if (trimesh::dist(end_node, prev_end_node) < trimesh::dist(start_node, prev_end_node))
+					{
+						point tmp_swap = start_node;
+						start_node = end_node;
+						end_node = tmp_swap;
+					}
+				}
 
-			temp.fan_state_ = false;
-			temp.start_ = start_node;
-			temp.end_ = end_node;
+				temp.fan_state_ = false;
+				temp.start_ = start_node;
+				temp.end_ = end_node;
+			}
 		}
 
+		prev_end_node = temp.end_;
 		process_list_[i] = temp;
 	} // end loop for all elements (layer_queue_)
 
@@ -192,7 +192,7 @@ void ProcAnalyzer::ProcPrint()
 		else
 		{
 			// disable pruning on "connect type" domain prunning
-			//CheckProcess(process_list_[i]);
+			CheckProcess(process_list_[i]);
 		}
 	}
 

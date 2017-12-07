@@ -35,10 +35,10 @@ bool FFAnalyzer::SeqPrint()
 
 	//if (debug_)
 	//{
-		for (int l = 0; l < layer_size; l++)
-		{
-			fprintf(stderr, "Size of layer %d is %d\n", l + 1, layers_[l].size());
-		}
+	for (int l = 0; l < layer_size; l++)
+	{
+		fprintf(stderr, "Size of layer %d is %d\n", l + 1, layers_[l].size());
+	}
 	//}
 
 	//Timer layer_search;

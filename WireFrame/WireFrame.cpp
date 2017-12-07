@@ -712,6 +712,7 @@ WF_edge* WireFrame::InsertEdge(WF_vert *u, WF_vert *v)
 	{
 		if (e->pvert_ == v)
 		{
+			// u-v edge already exists
 			return e;
 		}
 		e = e->pnext_;
